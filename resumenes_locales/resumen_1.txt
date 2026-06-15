@@ -1,0 +1,9 @@
+=== RESUMEN DE INSCRIPCIÓN ===
+ID Inscripción: 1
+Estudiante: Carlos
+
+Cursos Inscritos:
+- Introducción a Cloud Native ($150.0)
+
+TOTAL A PAGAR: $150.0
+===============================
