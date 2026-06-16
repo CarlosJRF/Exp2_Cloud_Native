@@ -2,7 +2,8 @@ package com.learningPlatform.registration.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+// Importamos la clase correcta para AWS Academy (SessionCredentials)
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -18,17 +19,23 @@ public class S3Service {
     @Value("${aws.s3.bucketName}")
     private String bucketName;
 
+    // Agregamos el sessionToken al constructor
     public S3Service(@Value("${aws.accessKeyId}") String accessKey,
                      @Value("${aws.secretKey}") String secretKey,
+                     @Value("${aws.sessionToken}") String sessionToken,
                      @Value("${aws.region}") String region) {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        
+        // Usamos AwsSessionCredentials que recibe los TRES parámetros
+        AwsSessionCredentials credentials = AwsSessionCredentials.create(accessKey, secretKey, sessionToken);
+        
         this.s3Client = S3Client.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
     }
 
-    // 1. Método para subir (o modificar)
+    // ... (El resto de tus métodos subirArchivo, descargarArchivo y borrarArchivo se mantienen exactamente igual)
+    // 1. Método para subir
     public String subirArchivo(Long idInscripcion, Path rutaArchivoLocal) {
         String s3Key = idInscripcion + "/" + rutaArchivoLocal.getFileName().toString();
         PutObjectRequest putOb = PutObjectRequest.builder()
@@ -39,7 +46,7 @@ public class S3Service {
         return "Archivo guardado exitosamente en S3: " + s3Key;
     }
 
-    // 2. Método para DESCARGAR 
+    // 2. Método para descargar
     public byte[] descargarArchivo(Long idInscripcion, String nombreArchivo) {
         String s3Key = idInscripcion + "/" + nombreArchivo;
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
@@ -53,7 +60,7 @@ public class S3Service {
         }
     }
 
-    // 3. Método para BORRAR
+    // 3. Método para borrar
     public String borrarArchivo(Long idInscripcion, String nombreArchivo) {
         String s3Key = idInscripcion + "/" + nombreArchivo;
         DeleteObjectRequest deleteObj = DeleteObjectRequest.builder()
